@@ -1,0 +1,12 @@
+.hero-animation .background-image {
+  transform-origin: center center;
+  transition: transform 0.5s ease;
+}
+
+.hero-animation .floating-element {
+  transform: translate(-50%, -50%) scale(2); /* Initially larger and centered */
+  transform-origin: center center;
+  transition:
+    transform 0.8s ease-out,
+    opacity 0.8s ease-out;
+}

@@ -1,0 +1,12 @@
+.tab-layout {
+  &[data-fullscreen='true'] {
+    .full-screen-btn {
+      display: none;
+    }
+  }
+  &[data-fullscreen='false'] {
+    .small-screen-btn {
+      display: none;
+    }
+  }
+}

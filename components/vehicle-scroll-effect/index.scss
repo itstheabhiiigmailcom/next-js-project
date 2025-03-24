@@ -1,0 +1,39 @@
+.vehicle-scroll-effect .background-image {
+  transform-origin: center center;
+  transition: transform 0.5s ease;
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes wheel-rotation {
+  from {
+    background-position: 0% 100%;
+  }
+  to {
+    background-position: 0% 0%;
+  }
+}
+
+.vehicle-scroll-effect .wheel-rotate {
+  animation: wheel-rotation 1s linear infinite; // Slower animation for better visibility
+  background-size: cover;
+}
+
+@keyframes wheel-rotation-reverse {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 0% 100%;
+  }
+}
+
+.vehicle-scroll-effect .wheel-reverse {
+  animation: wheel-rotation-reverse 1s linear infinite; // Slower animation for better visibility
+  background-size: cover;
+}

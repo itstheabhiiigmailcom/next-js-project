@@ -1,0 +1,143 @@
+'use client';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
+
+export default function HikingWatchComponent() {
+  const [step, setStep] = useState(0);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStep(1);
+          setTimeout(() => {
+            setStep(2);
+            setTimeout(() => setStep(3), 1500);
+            setTimeout(() => setStep(4), 2500);
+            setTimeout(() => setStep(5), 3500);
+          }, 2000);
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="relative flex h-screen w-full items-center justify-center overflow-hidden bg-white">
+      <svg
+        ref={ref}
+        viewBox="0 0 1200 900"
+        className={`absolute h-screen w-full bg-[url(/hiking-watch/S3_1.webp)] bg-cover bg-center bg-no-repeat shadow-2xl transition-transform duration-[1.5s] ${
+          step >= 2 ? '-translate-y-full' : 'translate-y-0'
+        }`}
+      >
+        <image
+          href="/hiking-watch/shoes.png"
+          width="250"
+          height="245"
+          x="-6%"
+          y="69%"
+          className={`transition-transform duration-[1.5s] ${step >= 2 ? '-translate-y-full' : 'translate-y-0'}`}
+        />
+
+        <image
+          href="/hiking-watch/bag.png"
+          width="250"
+          height="264"
+          x="84%"
+          y="64%"
+          className={`transition-transform duration-[1.5s] ${step >= 2 ? '-translate-y-full' : 'translate-y-0'}`}
+        />
+      </svg>
+
+      <div
+        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-[2s] ${
+          step === 0 ? 'scale-[2.5] rotate-[30deg]' : 'scale-100 rotate-0'
+        } ${
+          step >= 2
+            ? 'top-1/2 left-1/2 z-20 translate-x-[calc(-50%+3rem)] translate-y-[calc(-50%-1.5rem)] scale-[0.4]'
+            : ''
+        }`}
+      >
+        <Image
+          src="/hiking-watch/alfred-1.png"
+          width={500}
+          height={500}
+          alt="Alfred"
+          className="transition-transform duration-[2s]"
+        />
+      </div>
+
+      {step >= 3 && (
+        <div className="absolute flex flex-col items-center justify-center gap-1 lg:flex-row">
+          {/* Left Card (Smaller Size) */}
+          <div
+            className={`z-10 flex h-40 w-56 flex-col items-start justify-center rounded-lg bg-blue-300 p-3 shadow-lg transition-all duration-[1.5s] sm:h-48 sm:w-64 md:h-52 md:w-72 lg:h-60 lg:w-80 ${
+              step >= 4
+                ? '-translate-y-[100%] opacity-100 sm:-translate-y-[30%] md:-translate-y-[20%] lg:-translate-x-[10%] lg:-translate-y-0'
+                : 'translate-y-0 opacity-0'
+            }`}
+          >
+            <Image
+              src="/hiking-watch/alfred-1.png"
+              width={80}
+              height={80}
+              alt="Alfred"
+              className={`absolute top-2 right-2 transition-opacity duration-[1.5s] ${
+                step >= 4 ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            <ul className="text-sm text-white">
+              <li>• Feature 1</li>
+              <li>• Feature 2</li>
+              <li>• Feature 3</li>
+            </ul>
+          </div>
+
+          {/* Middle Card (Original Size) */}
+          <div
+            className={`z-10 flex h-48 w-64 flex-col items-start justify-center rounded-lg bg-blue-300 p-3 shadow-lg transition-all duration-[1.5s] sm:h-56 sm:w-72 md:h-64 md:w-80 lg:h-72 lg:w-96 ${
+              step >= 3
+                ? 'translate-y-0 scale-100 opacity-100'
+                : 'translate-y-full scale-90 opacity-0'
+            }`}
+          >
+            <ul className="text-sm text-white">
+              <li>• Feature 4</li>
+              <li>• Feature 5</li>
+              <li>• Feature 6</li>
+            </ul>
+          </div>
+
+          {/* Right Card (Smaller Size) */}
+          <div
+            className={`z-10 flex h-40 w-56 flex-col items-start justify-center rounded-lg bg-blue-300 p-3 shadow-lg transition-all duration-[1.5s] sm:h-48 sm:w-64 md:h-52 md:w-72 lg:h-60 lg:w-80 ${
+              step >= 5
+                ? 'translate-y-[100%] opacity-100 sm:translate-y-[30%] md:translate-y-[20%] lg:translate-x-[10%] lg:translate-y-0'
+                : 'translate-y-0 opacity-0'
+            }`}
+          >
+            <Image
+              src="/hiking-watch/alfred-1.png"
+              width={80}
+              height={80}
+              alt="Alfred"
+              className={`absolute top-2 right-2 transition-opacity duration-[1.5s] ${
+                step >= 5 ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            <ul className="text-sm text-white">
+              <li>• Feature 7</li>
+              <li>• Feature 8</li>
+              <li>• Feature 9</li>
+            </ul>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

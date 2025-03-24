@@ -1,0 +1,87 @@
+/* Base styling for the ant component */
+.red-ant-movement .ant-container {
+  background: linear-gradient(to bottom, #f5f5f5, #e0e0e0);
+  position: relative;
+  justify-items: center;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Styling for the content section */
+.red-ant-movement .content {
+  max-width: fit-content;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.8;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  p {
+    margin-bottom: 1.5rem;
+    text-align: justify;
+  }
+}
+
+/* Ant SVG animations */
+.red-ant-movement .ant-leg {
+  transform-origin: 50% 50%;
+  transition: all 0.3s ease;
+}
+
+.red-ant-movement .is-scrolling {
+  .left-leg.front {
+    animation: legWiggle 0.4s infinite alternate;
+  }
+
+  .right-leg.front {
+    animation: legWiggle 0.4s infinite alternate-reverse;
+  }
+
+  .left-leg.middle {
+    animation: legWiggle 0.4s 0.1s infinite alternate;
+  }
+
+  .right-leg.middle {
+    animation: legWiggle 0.4s 0.1s infinite alternate-reverse;
+  }
+
+  .left-leg.back {
+    animation: legWiggle 0.4s 0.2s infinite alternate;
+  }
+
+  .right-leg.back {
+    animation: legWiggle 0.4s 0.2s infinite alternate-reverse;
+  }
+
+  .ant-antenna {
+    animation: antennaWiggle 0.5s infinite alternate;
+  }
+}
+
+@keyframes legWiggle {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes antennaWiggle {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(8deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .content {
+    padding: 1.5rem;
+    margin: 0 1rem;
+  }
+}

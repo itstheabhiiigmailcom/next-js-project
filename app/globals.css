@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Primary Colors */
+  --color-primary: var(--color-gray-500);
+  --color-primary-50: var(--color-gray-50);
+  --color-primary-100: var(--color-gray-100);
+  --color-primary-200: var(--color-gray-200);
+  --color-primary-300: var(--color-gray-300);
+  --color-primary-400: var(--color-gray-400);
+  --color-primary-500: var(--color-gray-500);
+  --color-primary-600: var(--color-gray-600);
+  --color-primary-700: var(--color-gray-700);
+  --color-primary-800: var(--color-gray-800);
+  --color-primary-900: var(--color-gray-900);
+  --color-primary-950: var(--color-gray-950);
+
+  /* Breakpoints */
+  --breakpoint-xs: 30rem;
+  --breakpoint-3xl: 100rem;
+  --breakpoint-4xl: 120rem;
+}
+
+img,
+svg,
+canvas {
+  user-drag: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  pointer-events: none;
+}
+
+.h-screen {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.w-screen {
+  width: 100vw;
+  width: 100dvw;
+}

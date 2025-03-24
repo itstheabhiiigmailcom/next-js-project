@@ -1,0 +1,207 @@
+@keyframes moveAlongPath2 {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes drawCurve {
+  from {
+    stroke-dashoffset: 1593;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes disappearCurve {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 1593;
+  }
+}
+
+/* Apply the same animation to both left and right curves */
+.compliance-dashboard .curve-line {
+  stroke-dasharray: 1593; /* Ensure same length */
+  stroke-dashoffset: 1593;
+  animation: drawCurve 3s linear forwards;
+}
+
+.compliance-dashboard .curve-line.disappear {
+  animation: disappearCurve 3s linear forwards;
+}
+
+.compliance-dashboard .curve-dot-animation {
+  offset-path: path(
+    'M 609 138 V 137 C 326 135 -58 138 -71 138 C -99 105 -101 59 -70.3288 26.822 C -70.3288 26.822 55.229 26.822 55.229 26.822 C 67.5698 26.822 77.5736 10.149 77.5736 -10.419 C 77.5736 -30.987 67.5698 -47.66 55.229 -47.66 C 55.229 -47.66 -111.3646 -47.66 -111.3646 -47.66 C -123.3046 -47.66 -132.9838 -63.792 -132.9838 -83.692 C -132.9838 -103.592 -123.3046 -119.724 -111.3646 -119.724 C -111.3646 -119.724 75.863 -119.724 75.863 -119.724 C 86.7614 -119.724 95.5958 -134.448 95.5958 -152.612 C 95.5958 -170.776 86.7614 -185.5 75.863 -185.5 C 75.863 -185.5 37 -185 37 -185'
+  );
+  animation: moveAlongPath2 3s linear;
+}
+
+// .compliance-dashboard .right-curve-dot-animation {
+//   offset-path: path(
+//     'M -207 128 H 20.977 C 43.1507 128 64.6407 120.324 81.7968 106.2762 L 175.286 22.7238 C 192.442 8.6759 213.933 1 236.106 1 H 432'
+//   );
+//   animation: moveAlongPath2 3s linear;
+// }
+
+.compliance-dashboard .dot-animation-1 {
+  offset-path: path('M136, 59 H38'); /* Defines the path */
+  animation: moveAlongPath2 0.8s ease-in-out infinite alternate; /* Smooth back-and-forth animation */
+  will-change: transform; /* Improves performance */
+}
+
+@keyframes drawLine {
+  0% {
+    width: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 150px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInIcon {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInItem {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.compliance-dashboard .home-icon-bottom-line {
+  animation: drawLine 1s ease-out 3s forwards;
+}
+
+.compliance-dashboard .home-icon-fade-in {
+  opacity: 0;
+  animation: fadeInIcon 1s ease-out 4s forwards;
+}
+
+.compliance-dashboard .animate-item-1,
+.compliance-dashboard .animate-item-2,
+.compliance-dashboard .animate-right-item-3,
+.compliance-dashboard .animate-right-item-4,
+.compliance-dashboard .dotted-centered-line-1,
+.compliance-dashboard .dotted-centered-line-2,
+.compliance-dashboard .dotted-centered-line-3,
+.compliance-dashboard .dotted-centered-line-4 {
+  opacity: 0;
+}
+
+@keyframes fadeOutItem {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.compliance-dashboard .dotted-centered-line-1 {
+  animation:
+    fadeInItem 1s ease-out 5s forwards,
+    fadeOutItem 1s ease-out 9s forwards;
+}
+.compliance-dashboard .dotted-centered-line-2 {
+  animation:
+    fadeInItem 1s ease-out 6s forwards,
+    fadeOutItem 1s ease-out 9.5s forwards;
+}
+.compliance-dashboard .dotted-centered-line-3 {
+  animation:
+    fadeInItem 1s ease-out 7s forwards,
+    fadeOutItem 1s ease-out 10s forwards;
+}
+.compliance-dashboard .dotted-centered-line-4 {
+  animation:
+    fadeInItem 1s ease-out 8s forwards,
+    fadeOutItem 1s ease-out 10.5s forwards;
+}
+
+.compliance-dashboard .animate-item-1 {
+  animation:
+    fadeInItem 1s ease-out 5s forwards,
+    fadeOutItem 1s ease-out 10s forwards;
+}
+
+.compliance-dashboard .animate-item-2 {
+  animation:
+    fadeInItem 1s ease-out 6s forwards,
+    fadeOutItem 1s ease-out 11s forwards;
+}
+
+.compliance-dashboard .animate-right-item-3 {
+  animation:
+    fadeInItem 1s ease-out 7s forwards,
+    fadeOutItem 1s ease-out 12s forwards;
+}
+
+.compliance-dashboard .animate-right-item-4 {
+  animation:
+    fadeInItem 1s ease-out 8s forwards,
+    fadeOutItem 1s ease-out 13s forwards;
+}
+
+.compliance-dashboard .animate-icon {
+  opacity: 0;
+  animation: fadeInIcon 0.5s ease-out 3.2s forwards;
+}
+
+@keyframes drawPath {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes moveLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-400%);
+  }
+}
+
+.home-icon-move-left {
+  animation: moveLeft 1.8s ease-in-out 14.5s forwards; /* Animation duration */
+}
+
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.report-slide-in {
+  animation: slideInFromRight 1s ease-out forwards;
+}

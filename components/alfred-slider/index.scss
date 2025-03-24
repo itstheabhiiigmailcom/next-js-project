@@ -1,0 +1,28 @@
+/* Custom animations for card elements */
+
+// .robot {
+//   display: inline-flex;
+// }
+
+.alfred-scroll {
+  perspective: 1000px;
+}
+
+.alfred-scroll .robot {
+  will-change: transform, top; /* Optimize for animations */
+}
+
+.alfred-scroll .robot img {
+  transition: transform 0.2s ease-out; /* Smooth scaling */
+}
+
+.alfred-scroll .card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &:hover {
+    cursor: pointer;
+    transform: translateZ(10px);
+  }
+}
