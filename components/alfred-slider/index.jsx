@@ -6,15 +6,15 @@ import { cn } from '@/utils/cn';
 import './index.scss';
 
 export default function AlfredScroll({
-  robotImage = '/alfred-slider/alfred-1.png', // Default robot image
-  robotWidth = 300, // Default robot width
-  robotHeight = 300, // Default robot height
-  backgroundImage = '/alfred-slider/S3_1.webp?height=1280&width=1920', // Default background image
-  firstSectionHeading = 'Scroll Down to See Cards', // Default first section heading
+  robotImage = '/alfred-slider/alfred-1.png',
+  robotWidth = 300,
+  robotHeight = 300,
+  backgroundImage = '/alfred-slider/S3_1.webp?height=1280&width=1920',
+  firstSectionHeading = 'Scroll Down to See Cards',
   firstSectionHeadingClassName = '',
-  secondSectionHeading = 'Discover Hiking Gear', // Default second section heading,
+  secondSectionHeading = 'Discover Hiking Gear',
   secondSectionHeadingClassName = '',
-  secondSectionSubheading = "That's Built to Perform", // Default second section subheading,
+  secondSectionSubheading = "That's Built to Perform",
   secondSectionSubheadingClassName = '',
   cards = [
     {
@@ -31,7 +31,7 @@ export default function AlfredScroll({
       type: 'main',
       heading: 'Main Card',
       text: 'This is the main card that appears first in the animation sequence.',
-      headingClassName: '',
+      headingClassName: 'p-2',
       paraClassName: '',
     },
     {
@@ -48,144 +48,308 @@ export default function AlfredScroll({
 }) {
   const [cardsVisible, setCardsVisible] = useState(false);
   const [scale, setScale] = useState(1);
-  const [topPosition, setTopPosition] = useState('100%');
+  const [isMobile, setIsMobile] = useState();
+  const [robotVisible, setRobotVisible] = useState(false);
+  const [isFullyVisible, setIsFullyVisible] = useState(false);
+  const [isAbsolute, setIsAbsolute] = useState(false);
+  const [firstSectionHeight, setFirstSectionHeight] = useState(0);
+  const [secondSectionHeight, setSecondSectionHeight] = useState(0);
   const secondSectionRef = useRef(null);
   const componentRef = useRef(null);
   const firstSectionRef = useRef(null);
 
-  // Debounce function to limit scroll event frequency
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(this, args), delay);
-    };
+  // Card height configuration
+  const cardHeights = {
+    mobile: {
+      main: 'h-[300px]',
+      others: 'h-[250px]',
+    },
+    desktop: {
+      main: 'h-[320px]',
+      others: 'h-64',
+    },
+  };
+
+  // Animation classes based on visibility
+  const getCardAnimationClasses = (cardType) => {
+    if (!cardsVisible) {
+      if (isMobile) {
+        return cardType === 'main'
+          ? 'scale-75 opacity-0'
+          : cardType === 'left'
+            ? '-translate-y-full scale-50 opacity-0'
+            : 'translate-y-full scale-50 opacity-0';
+      } else {
+        return cardType === 'main'
+          ? 'scale-75 opacity-0'
+          : cardType === 'left'
+            ? '-translate-x-full scale-50 opacity-0'
+            : 'translate-x-full scale-50 opacity-0';
+      }
+    }
+
+    return cardType === 'main'
+      ? 'scale-100 opacity-100'
+      : `scale-100 opacity-100 ${!isMobile ? (cardType === 'left' ? '-rotate-y-5' : 'rotate-y-5') : ''}`;
+  };
+
+  // Shadow classes based on visibility and card type
+  const getCardShadowClasses = (cardType) => {
+    if (!cardsVisible) return 'shadow-none';
+
+    if (isMobile) {
+      return 'shadow-[0_10px_25px_rgba(0,0,0,0.2),0_5px_10px_rgba(0,0,0,0.1)';
+    } else {
+      return cardType === 'main'
+        ? 'shadow-[0_10px_25px_rgba(0,0,0,0.2),0_5px_10px_rgba(0,0,0,0.1)]'
+        : cardType === 'left'
+          ? 'shadow-[8px_8px_15px_rgba(0,0,0,0.2),-5px_-5px_10px_rgba(255,255,255,0.5)]'
+          : 'shadow-[-8px_8px_15px_rgba(0,0,0,0.2),5px_-5px_10px_rgba(255,255,255,0.5)]';
+    }
   };
 
   useEffect(() => {
-    let animationFrameId;
+    const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
+    checkIfMobile();
 
-    const handleScroll = () => {
-      if (firstSectionRef.current && secondSectionRef.current) {
-        const firstSection = firstSectionRef.current;
-        const secondSection = secondSectionRef.current;
+    // Track if component is in view
+    const component = componentRef.current;
+    let isComponentInView = false;
 
-        // Batch DOM reads for performance
-        const firstSectionTop = firstSection.getBoundingClientRect().top;
-        const secondSectionTop = secondSection.getBoundingClientRect().top;
-        const viewportHeight = window.innerHeight;
+    const checkComponentVisibility = () => {
+      if (!component) return false;
 
-        // Calculate scroll progress for the first section (0 to 1)
-        const firstSectionProgress = Math.max(
-          0,
-          Math.min(1, (viewportHeight - firstSectionTop) / viewportHeight),
-        );
+      const rect = component.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
 
-        // Adjust top position based on first section scroll progress
-        let newTopPosition = '100%';
-        if (firstSectionProgress >= 0.5) {
-          const adjustedProgress = (firstSectionProgress - 0.5) / 0.5;
-          newTopPosition = `${95 - adjustedProgress * 55}%`;
-        }
+      // Component is considered "in view" if any part of it is visible
+      isComponentInView = rect.bottom > 0 && rect.top < viewportHeight;
 
-        // Calculate scroll progress for the second section (0 to 1)
-        const secondSectionProgress = Math.max(
-          0,
-          Math.min(1, (viewportHeight - secondSectionTop) / viewportHeight),
-        );
+      // Check if component is fully visible (taking up the entire viewport)
+      const isFullyInView = rect.top <= 100 && rect.bottom >= viewportHeight;
+      setIsFullyVisible(isFullyInView);
 
-        // Scale down the robot image based on second section scroll progress
-        const newScale = Math.max(0.4, 1 - secondSectionProgress * 0.6);
+      return isComponentInView;
+    };
 
-        // Batch DOM writes using requestAnimationFrame for smooth updates
-        animationFrameId = requestAnimationFrame(() => {
-          setTopPosition(newTopPosition);
-          setScale(newScale);
+    const updateScrollPosition = () => {
+      if (!firstSectionRef.current || !secondSectionRef.current) return;
+
+      // Update component visibility status
+      checkComponentVisibility();
+
+      const viewportHeight = window.innerHeight;
+      const firstSection = firstSectionRef.current;
+      const secondSection = secondSectionRef.current;
+
+      const firstSectionRect = firstSection.getBoundingClientRect();
+      const firstSectionVisibility = Math.max(
+        0,
+        Math.min(1, (viewportHeight - firstSectionRect.top) / viewportHeight),
+      );
+
+      const secondSectionTop = secondSection.getBoundingClientRect().top;
+      const secondSectionVisibility = Math.max(
+        0,
+        Math.min(1, (viewportHeight - secondSectionTop) / viewportHeight),
+      );
+
+      const newScale = Math.max(0.4, 1 - secondSectionVisibility * 0.6);
+      setScale(newScale);
+      setIsAbsolute(newScale <= 0.4);
+      // Show robot when first section is at least 90% visible
+      setRobotVisible(firstSectionVisibility >= 0.8);
+
+      // Show cards when second section is at least 70% visible
+      setCardsVisible(secondSectionVisibility >= 0.7);
+    };
+
+    // Auto-scroll logic - only runs when component is in view
+    let isScrolling = false;
+    let lastScrollPosition = window.scrollY;
+    let scrollTimeout;
+
+    const handleAutoScroll = () => {
+      // Only proceed if component is in view
+      if (!isComponentInView || isScrolling) return;
+
+      const currentScrollPosition = window.scrollY;
+      const scrollDirection =
+        currentScrollPosition > lastScrollPosition ? 'down' : 'up';
+      lastScrollPosition = currentScrollPosition;
+
+      const firstSection = firstSectionRef.current;
+      const secondSection = secondSectionRef.current;
+
+      if (!firstSection || !secondSection) return;
+
+      const firstRect = firstSection.getBoundingClientRect();
+      const secondRect = secondSection.getBoundingClientRect();
+
+      if (
+        scrollDirection === 'down' &&
+        firstRect.top < 0 &&
+        firstRect.top > -firstRect.height
+      ) {
+        isScrolling = true;
+        secondSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
         });
+        scrollTimeout = setTimeout(() => {
+          isScrolling = false;
+        }, 100);
+      } else if (
+        scrollDirection === 'up' &&
+        secondRect.top > 10 &&
+        secondRect.top < secondRect.height + 10
+      ) {
+        isScrolling = true;
+        firstSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+        scrollTimeout = setTimeout(() => {
+          isScrolling = false;
+        }, 100);
       }
     };
 
-    // Debounce the scroll handler to improve performance
-    const debouncedHandleScroll = debounce(handleScroll, 10);
+    // Initial setup
+    updateScrollPosition();
 
-    window.addEventListener('scroll', debouncedHandleScroll);
+    // Throttle scroll events for better performance
+    const throttle = (fn, wait) => {
+      let time = Date.now();
+      return () => {
+        if (time + wait - Date.now() < 0) {
+          fn();
+          time = Date.now();
+        }
+      };
+    };
+
+    const throttledScroll = throttle(() => {
+      updateScrollPosition();
+      handleAutoScroll();
+    }, 50);
+
+    // Event listeners
+    window.addEventListener('resize', checkIfMobile);
+    window.addEventListener('scroll', throttledScroll);
+
     return () => {
-      window.removeEventListener('scroll', debouncedHandleScroll);
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
+      window.removeEventListener('resize', checkIfMobile);
+      window.removeEventListener('scroll', throttledScroll);
+      clearTimeout(scrollTimeout);
     };
   }, []);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          // Trigger animations when 50% of the second section is visible
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            setCardsVisible(true);
-          } else {
-            setCardsVisible(false);
-          }
-        });
-      },
-      { threshold: 0.5 }, // Trigger when 50% of the section is visible
-    );
+  // Add new state for left card height
+  const [rightCardHeight, setRightCardHeight] = useState(0);
 
+  // Update your useEffect to measure the left card
+  useEffect(() => {
+    const measureElements = () => {
+      if (firstSectionRef.current) {
+        setFirstSectionHeight(firstSectionRef.current.offsetHeight);
+      }
+      if (secondSectionRef.current) {
+        // Measure left card height when cards are visible
+        setSecondSectionHeight(secondSectionRef.current.offsetHeight);
+        if (cardsVisible) {
+          const rightCard = secondSectionRef.current.querySelector(
+            '.card[data-type="right"]',
+          );
+          if (rightCard) {
+            setRightCardHeight(rightCard.offsetHeight);
+          }
+        }
+      }
+    };
+
+    // Initial measurement
+    measureElements();
+
+    // Re-measure on resize
+    const resizeObserver = new ResizeObserver(measureElements);
+    if (firstSectionRef.current)
+      resizeObserver.observe(firstSectionRef.current);
     if (secondSectionRef.current) {
-      observer.observe(secondSectionRef.current);
+      resizeObserver.observe(secondSectionRef.current);
+      resizeObserver.observe(
+        secondSectionRef.current.querySelector('.card[data-type="right"]'),
+      );
     }
 
-    return () => {
-      if (secondSectionRef.current) {
-        observer.unobserve(secondSectionRef.current);
-      }
-    };
-  }, []);
+    return () => resizeObserver.disconnect();
+  }, [cardsVisible]); // Add cardsVisible as dependency
+
+  // Update dynamic top calculation to include left card height
+  const dynamicTop =
+    isMobile && isAbsolute
+      ? `${firstSectionHeight + secondSectionHeight - rightCardHeight - 247}px`
+      : undefined;
 
   return (
     <div className="alfred-scroll relative w-full" ref={componentRef}>
-      {/* Robot image that scales and moves based on scroll progress */}
       <div
-        className="robot pointer-events-none sticky left-[38%] z-999 flex h-[85vh] justify-center"
-        style={{ top: topPosition }} // Dynamically update top position
+        className={`robot pointer-events-none ${
+          isFullyVisible
+            ? isMobile
+              ? isAbsolute
+                ? 'absolute' // We'll handle the top position via style
+                : 'sticky top-[66%]'
+              : 'sticky top-[48%]'
+            : isMobile
+              ? 'absolute top-[35%]'
+              : 'absolute top-[74%]'
+        } left-0 z-10 flex w-full items-center justify-center`}
+        style={{
+          height: 0,
+          ...(isMobile && isAbsolute && { top: dynamicTop }),
+        }}
       >
         <Image
-          src={robotImage}
+          src={robotImage || '/placeholder.svg'}
           alt="Robot"
           width={robotWidth}
           height={robotHeight}
-          className="h-[450px] w-auto transition-transform duration-200"
+          className={`robot-image h-[450px] w-auto transition-transform duration-700 ease-out ${
+            robotVisible
+              ? 'translate-y-0 scale-100 rotate-0 opacity-100'
+              : 'translate-y-64 scale-50 -rotate-45 opacity-0'
+          }`}
           style={{ transform: `scale(${scale})` }}
           priority
         />
       </div>
 
-      {/* First section with background */}
       <section
         ref={firstSectionRef}
-        className="relative -mt-150 h-screen w-full overflow-hidden"
+        className={`first-section relative h-screen w-full overflow-hidden bg-cover bg-center bg-no-repeat`}
+        style={{
+          backgroundImage: `url('${backgroundImage}')`,
+          filter: 'brightness(0.7)',
+        }}
       >
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('${backgroundImage}')`,
-            filter: 'brightness(0.7)',
-          }}
-        />
-        <div className="absolute inset-0 flex items-start justify-center pt-20">
-          <h1 className={cn('font-bold', firstSectionHeadingClassName)}>
-            {firstSectionHeading}
-          </h1>
-        </div>
+        <h1
+          className={cn(
+            'mt-16 px-4 text-center text-6xl font-extrabold md:text-7xl lg:text-8xl',
+            'bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent',
+            'drop-shadow-[4px_4px_0px_rgba(0,0,0,0.5)] lg:drop-shadow-[6px_6px_0px_rgba(0,0,0,0.6)]',
+            firstSectionHeadingClassName,
+          )}
+        >
+          {firstSectionHeading}
+        </h1>
       </section>
 
-      {/* Second section with cards */}
       <section
         ref={secondSectionRef}
-        className="relative flex h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-gray-100 to-gray-200 py-12"
+        className="relative flex min-h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-gray-100 to-gray-200"
       >
-        <div className="mb-12 text-center">
+        <div className="mb-12 px-4 text-center">
           <h2 className={cn('font-bold', secondSectionHeadingClassName)}>
             {secondSectionHeading}
           </h2>
@@ -193,53 +357,55 @@ export default function AlfredScroll({
             {secondSectionSubheading}
           </h3>
         </div>
-        <div className="relative flex w-full max-w-6xl items-center justify-center px-4">
+
+        <div
+          className={`relative flex w-full items-center justify-center overflow-hidden px-4 ${
+            isMobile ? 'flex-col space-y-8' : 'space-x-16'
+          }`}
+        >
           {cards.map((card, index) => (
             <div
               key={index}
-              className={`card z-10 mx-4 flex h-72 w-56 flex-col items-center justify-center rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-6 text-center shadow-lg transition-all duration-500 ease-out hover:shadow-xl ${
-                cardsVisible
-                  ? 'translate-x-0 scale-100 opacity-100'
-                  : card.type === 'left'
-                    ? '-translate-x-full scale-50 opacity-0'
-                    : card.type === 'right'
-                      ? 'translate-x-full scale-50 opacity-0'
-                      : 'scale-75 opacity-0'
-              }`}
-              style={{
-                transform: cardsVisible
-                  ? `translate3d(0, 0, 0) rotateY(${
-                      card.type === 'left'
-                        ? '-5deg'
-                        : card.type === 'right'
-                          ? '5deg'
-                          : '0deg'
-                    })`
-                  : card.type === 'left'
-                    ? 'translate3d(-100%, 0, 0) rotateY(-5deg) scale(0.5)'
-                    : card.type === 'right'
-                      ? 'translate3d(100%, 0, 0) rotateY(5deg) scale(0.5)'
-                      : 'translate3d(0, 0, 0) scale(0.75)',
-                transformStyle: 'preserve-3d',
-                perspective: '1000px',
-              }}
+              data-type={card.type}
+              className={cn(
+                `card z-0 mb-2 flex ${
+                  isMobile
+                    ? `${
+                        card.type === 'left'
+                          ? 'order-first' // Left card comes first
+                          : card.type === 'main'
+                            ? 'order-2' // Main card comes second
+                            : 'order-3' // Right card comes last
+                      } w-full max-w-sm ${card.type === 'main' ? cardHeights.mobile.main : cardHeights.mobile.others}`
+                    : `${card.type === 'left' ? 'order-1' : card.type === 'main' ? 'order-2' : 'order-3'} ${
+                        card.type === 'main'
+                          ? cardHeights.desktop.main
+                          : cardHeights.desktop.others
+                      } ${card.type === 'main' ? 'w-64' : 'w-56'}`
+                }`,
+                'flex-col items-center justify-center rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-4 text-center',
+                getCardAnimationClasses(card.type),
+                getCardShadowClasses(card.type),
+                'perspective-1000',
+              )}
             >
-              {/* Robot image in the middle top */}
+              {/* Card content remains the same */}
               {card.image && (
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 transform">
                   <Image
-                    src={card.image}
+                    src={card.image || '/placeholder.svg'}
                     alt="Robot"
-                    width={card.imageWidth || 100}
-                    height={card.imageHeight || 100}
-                    className="h-24 w-24"
+                    width={card.imageWidth || 80}
+                    height={card.imageHeight || 80}
+                    className="h-30 w-30"
                   />
                 </div>
               )}
-              {/* Text (heading + paragraph) */}
-              <div className="mt-28 text-center">
-                <h3 className={cn(card.headingClassName)}>{card.heading}</h3>
-                <p className={`${card.paraClassName}`}>{card.text}</p>
+              <div className={`${isMobile ? 'mt-24' : 'mt-28'} text-center`}>
+                <h3 className={cn('text-lg', card.headingClassName)}>
+                  {card.heading}
+                </h3>
+                <p className={`text-sm ${card.paraClassName}`}>{card.text}</p>
               </div>
             </div>
           ))}

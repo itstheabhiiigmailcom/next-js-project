@@ -7,9 +7,10 @@
 // import VideoScrollEffect from '@/components/video-scroll-effect';
 // import FloatingText from '@/components/floating-text';
 // import ImageGrid from '@/components/image-grid';
-import ComplianceDashboard from '@/components/compliance-dashboard';
+// import ComplianceDashboard from '@/components/compliance-dashboard';
+// import SlidingBackground from '@/components/background-slider';
 import AlfredScroll from '@/components/alfred-slider';
-import SlidingBackground from '@/components/background-slider';
+import VerticalHorizontalScroll from '@/components/vertical-horizontal-scroll';
 
 async function Home() {
   return (
@@ -196,9 +197,9 @@ async function Home() {
         ]}
       /> */}
 
-      <div className="h-300 w-full bg-blue-200" />
-      <ComplianceDashboard />
-      <div className="h-300 w-full bg-blue-200" />
+      {/* <div className="h-300 w-full bg-blue-200" />
+      <ComplianceDashboard /> */}
+      {/* <div className="h-300 w-full bg-blue-200" />
       <SlidingBackground
         className="w-full"
         backgroundImages={[
@@ -213,7 +214,7 @@ async function Home() {
         ]}
         robotImage="/background-slider/alfred.png"
         extraScrollSpace={50}
-      />
+      /> */}
       <div className="h-screen w-full bg-blue-200" />
 
       <AlfredScroll
@@ -221,7 +222,7 @@ async function Home() {
         robotWidth={400}
         robotHeight={400}
         backgroundImage="/alfred-slider/S3_1.webp?height=1280&width=1920"
-        firstSectionHeading="Anything humans can do in space, robots can do better"
+        firstSectionHeading="ALFRED"
         firstSectionHeadingClassName="text-4xl text-white"
         secondSectionHeading="semi-autonomous machines"
         secondSectionHeadingClassName="mb-2 text-4xl text-gray-900"
@@ -257,6 +258,8 @@ async function Home() {
           },
         ]}
       />
+      <div className="h-300 w-full bg-blue-200" />
+      <VerticalHorizontalScroll />
       <div className="h-300 w-full bg-blue-200" />
     </>
   );
