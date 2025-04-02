@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { cn } from '@/utils/cn';
-import './index.scss';
 
 export default function AlfredScroll({
   robotImage = '/alfred-slider/alfred-1.png',
@@ -49,11 +48,11 @@ export default function AlfredScroll({
   const [cardsVisible, setCardsVisible] = useState(false);
   const [scale, setScale] = useState(1);
   const [isMobile, setIsMobile] = useState();
-  const [robotVisible, setRobotVisible] = useState(false);
+  const [isSmallDevice, setIsSmallDevice] = useState();
   const [isFullyVisible, setIsFullyVisible] = useState(false);
-  const [isAbsolute, setIsAbsolute] = useState(false);
-  const [firstSectionHeight, setFirstSectionHeight] = useState(0);
-  const [secondSectionHeight, setSecondSectionHeight] = useState(0);
+  const [firstSecAbsolute, setFirstSecAbsolute] = useState(false);
+  const [secondSecAbsolute, setSecondSecAbsolute] = useState(false);
+  const [isSecondSectionVisible, setIsSecondSectionVisible] = useState(false);
   const secondSectionRef = useRef(null);
   const componentRef = useRef(null);
   const firstSectionRef = useRef(null);
@@ -109,7 +108,11 @@ export default function AlfredScroll({
   };
 
   useEffect(() => {
-    const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
+    const checkIfMobile = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsSmallDevice(width < 500);
+    };
     checkIfMobile();
 
     // Track if component is in view
@@ -126,7 +129,7 @@ export default function AlfredScroll({
       isComponentInView = rect.bottom > 0 && rect.top < viewportHeight;
 
       // Check if component is fully visible (taking up the entire viewport)
-      const isFullyInView = rect.top <= 100 && rect.bottom >= viewportHeight;
+      const isFullyInView = rect.top <= 10 && rect.bottom >= viewportHeight;
       setIsFullyVisible(isFullyInView);
 
       return isComponentInView;
@@ -139,14 +142,7 @@ export default function AlfredScroll({
       checkComponentVisibility();
 
       const viewportHeight = window.innerHeight;
-      const firstSection = firstSectionRef.current;
       const secondSection = secondSectionRef.current;
-
-      const firstSectionRect = firstSection.getBoundingClientRect();
-      const firstSectionVisibility = Math.max(
-        0,
-        Math.min(1, (viewportHeight - firstSectionRect.top) / viewportHeight),
-      );
 
       const secondSectionTop = secondSection.getBoundingClientRect().top;
       const secondSectionVisibility = Math.max(
@@ -154,11 +150,13 @@ export default function AlfredScroll({
         Math.min(1, (viewportHeight - secondSectionTop) / viewportHeight),
       );
 
+      setIsSecondSectionVisible(secondSectionVisibility > 0.5);
+
       const newScale = Math.max(0.4, 1 - secondSectionVisibility * 0.6);
       setScale(newScale);
-      setIsAbsolute(newScale <= 0.4);
-      // Show robot when first section is at least 90% visible
-      setRobotVisible(firstSectionVisibility >= 0.8);
+
+      setFirstSecAbsolute(newScale >= 1);
+      setSecondSecAbsolute(newScale <= 0.4);
 
       // Show cards when second section is at least 70% visible
       setCardsVisible(secondSectionVisibility >= 0.7);
@@ -202,7 +200,7 @@ export default function AlfredScroll({
       } else if (
         scrollDirection === 'up' &&
         secondRect.top > 10 &&
-        secondRect.top < secondRect.height + 10
+        secondRect.top < secondRect.height - 350
       ) {
         isScrolling = true;
         firstSection.scrollIntoView({
@@ -245,69 +243,85 @@ export default function AlfredScroll({
     };
   }, []);
 
-  // Add new state for left card height
-  const [rightCardHeight, setRightCardHeight] = useState(0);
+  // Update your useEffect to measure the right card
+  // useEffect(() => {
+  //   const measureElements = () => {
+  //     if (firstSectionRef.current) {
+  //       setFirstSectionHeight(firstSectionRef.current.offsetHeight);
+  //     }
+  //     if (secondSectionRef.current) {
+  //       // Measure right card height when cards are visible
+  //       setSecondSectionHeight(secondSectionRef.current.offsetHeight);
+  //       if (cardsVisible) {
+  //         const rightCard = secondSectionRef.current.querySelector(
+  //           '.card[data-type="right"]',
+  //         );
+  //         if (rightCard) {
+  //           setRightCardHeight(rightCard.offsetHeight);
+  //         }
+  //       }
+  //     }
+  //   };
 
-  // Update your useEffect to measure the left card
-  useEffect(() => {
-    const measureElements = () => {
-      if (firstSectionRef.current) {
-        setFirstSectionHeight(firstSectionRef.current.offsetHeight);
-      }
-      if (secondSectionRef.current) {
-        // Measure left card height when cards are visible
-        setSecondSectionHeight(secondSectionRef.current.offsetHeight);
-        if (cardsVisible) {
-          const rightCard = secondSectionRef.current.querySelector(
-            '.card[data-type="right"]',
-          );
-          if (rightCard) {
-            setRightCardHeight(rightCard.offsetHeight);
-          }
-        }
-      }
-    };
+  //   // Initial measurement
+  //   measureElements();
 
-    // Initial measurement
-    measureElements();
+  //   // Re-measure on resize
+  //   const resizeObserver = new ResizeObserver(measureElements);
+  //   if (firstSectionRef.current)
+  //     resizeObserver.observe(firstSectionRef.current);
+  //   if (secondSectionRef.current) {
+  //     resizeObserver.observe(secondSectionRef.current);
+  //     const rightCard = secondSectionRef.current.querySelector(
+  //       '.card[data-type="right"]',
+  //     );
+  //     if (rightCard) resizeObserver.observe(rightCard);
+  //   }
 
-    // Re-measure on resize
-    const resizeObserver = new ResizeObserver(measureElements);
-    if (firstSectionRef.current)
-      resizeObserver.observe(firstSectionRef.current);
-    if (secondSectionRef.current) {
-      resizeObserver.observe(secondSectionRef.current);
-      resizeObserver.observe(
-        secondSectionRef.current.querySelector('.card[data-type="right"]'),
-      );
-    }
+  //   return () => resizeObserver.disconnect();
+  // }, [cardsVisible]);
 
-    return () => resizeObserver.disconnect();
-  }, [cardsVisible]); // Add cardsVisible as dependency
+  // Update dynamic top calculation to handle both sections
+  // const dynamicTop = isMobile
+  //   ? firstSecAbsolute
+  //     ? `${firstSectionHeight - robotHeight / 2}px` // Position relative to first section
+  //     : secondSecAbsolute
+  //       ? `${firstSectionHeight + secondSectionHeight - rightCardHeight - 247}px` // Position relative to second section
+  //       : undefined
+  //   : undefined;
 
-  // Update dynamic top calculation to include left card height
-  const dynamicTop =
-    isMobile && isAbsolute
-      ? `${firstSectionHeight + secondSectionHeight - rightCardHeight - 247}px`
-      : undefined;
+  console.log('secondSectionVisible : ', isSecondSectionVisible);
 
   return (
     <div className="alfred-scroll relative w-full" ref={componentRef}>
       <div
         className={`robot pointer-events-none ${
           isFullyVisible
-            ? isMobile
-              ? isAbsolute
-                ? 'absolute' // We'll handle the top position via style
-                : 'sticky top-[66%]'
-              : 'sticky top-[48%]'
-            : isMobile
-              ? 'absolute top-[35%]'
-              : 'absolute top-[74%]'
+            ? isSmallDevice
+              ? !secondSecAbsolute
+                ? 'sticky top-[495px]' // Adjusted for small devices
+                : 'absolute top-[1170px]' // Adjusted for small devices
+              : isMobile
+                ? !secondSecAbsolute
+                  ? 'sticky top-[468px]'
+                  : 'absolute top-[1140px]'
+                : isSecondSectionVisible
+                  ? 'sticky top-[340px]'
+                  : 'sticky top-[450px]'
+            : isSmallDevice
+              ? firstSecAbsolute
+                ? 'absolute top-[468px]' // Small device first section absolute
+                : 'absolute top-[1170px]' // Default for small devices
+              : isMobile
+                ? firstSecAbsolute
+                  ? 'absolute top-[28%]'
+                  : 'absolute top-[70%]'
+                : firstSecAbsolute
+                  ? 'absolute top-[450px]'
+                  : 'absolute top-[74%]'
         } left-0 z-10 flex w-full items-center justify-center`}
         style={{
           height: 0,
-          ...(isMobile && isAbsolute && { top: dynamicTop }),
         }}
       >
         <Image
@@ -315,11 +329,7 @@ export default function AlfredScroll({
           alt="Robot"
           width={robotWidth}
           height={robotHeight}
-          className={`robot-image h-[450px] w-auto transition-transform duration-700 ease-out ${
-            robotVisible
-              ? 'translate-y-0 scale-100 rotate-0 opacity-100'
-              : 'translate-y-64 scale-50 -rotate-45 opacity-0'
-          }`}
+          className={`robot-image h-[450px] w-auto translate-y-0 scale-100 rotate-0 opacity-100 transition-transform duration-700 ease-out`}
           style={{ transform: `scale(${scale})` }}
           priority
         />
